@@ -13,11 +13,9 @@ if __name__ == '__main__':
         if path.exists():
             with path.open('rt', encoding='latin-1') as file:
                 _path = str(path)
-                _line_no = 1
-                for line in file:
+                for (_line_no, line) in enumerate(file, 1):
                     m = re.match('.*(#.*)$', line)
                     if m:
                         comment = m.group(1)
                         if 'test_dir' in comment:
                             print(f'{_path = }, {_line_no = }, {comment = }')
-                    _line_no += 1
