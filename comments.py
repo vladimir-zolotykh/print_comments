@@ -4,7 +4,16 @@
 import pathlib
 import re
 from collections import namedtuple
-Data = namedtuple('Data', 'path file line line_no match')
+from typing import Optional, NamedTuple
+# Data = namedtuple('Data', 'path file line line_no match')
+
+
+class Data(NamedTuple):
+    path: Optional[str]
+    file: Optional[str]
+    line: Optional[str]
+    line_no: int
+    match: Optional[str]
 
 
 def get_paths(topdir, pattern):
@@ -38,7 +47,7 @@ def get_comments(lines):
 def print_matching(lines, substring):
     for line in lines:
         if substring in line.line:
-            print(f'{line.path = }, {line.line_no = }, {line.line = }')
+            print(f'{str(line.path) = }, {line.line_no = }, {line.line = }')
 
 
 if __name__ == '__main__':
