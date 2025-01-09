@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 import pathlib
-import io
+import _io
 import re
 from collections import namedtuple
 from typing import Optional, Any
@@ -12,7 +12,8 @@ from pydantic import BaseModel
 
 class Data(BaseModel):
     path: pathlib.Path
-    file: Any
+    file: object
+    # file: _io.TextIOWrapper
     line: Optional[str]
     line_no: Optional[int]
     match: Optional[str]
@@ -32,7 +33,6 @@ def get_paths(topdir, pattern):
 def get_files(paths):
     for path in paths:
         with path.path.open('rt', encoding='latin-1') as file:
-            print(f'{type(file) = }')
             yield Data.from_list(path.path, file, None, None, None)
 
 
