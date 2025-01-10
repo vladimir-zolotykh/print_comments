@@ -49,6 +49,7 @@ def get_comments(lines):
     for line in lines:
         m = re.match('.*(#.*)$', line.line)
         if m:
+            mm = m.group(1)
             yield Data.from_list(line.path, line.file, line.line, line.line_no,
                                  m.group(1))
 
@@ -57,7 +58,7 @@ def print_matching(lines, substring):
     for line in lines:
         if substring in line.line:
             print("{:40s}:{:d} {:s}".format(str(line.path), line.line_no,
-                                            line.line), end='')
+                                            line.match))
 
 
 if __name__ == '__main__':
