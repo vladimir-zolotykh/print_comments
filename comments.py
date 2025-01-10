@@ -40,7 +40,8 @@ def get_lines(files):
     for file in files:
         line_no: int = 1
         for line in file.file:
-            yield Data.from_list(file.path, file.file, line, line_no, None)
+            yield Data.from_list(file.path, file.file, line.strip(),
+                                 line_no, None)
             line_no += 1
         # yield from file
 
@@ -49,8 +50,8 @@ def get_comments(lines):
     for line in lines:
         m = re.match('.*(#.*)$', line.line)
         if m:
-            yield Data.from_list(line.path, line.file, line.line,
-                                 line.line_no, m.group(1))
+            yield Data.from_list(line.path, line.file, line.line, line.line_no,
+                                 m.group(1))
 
 
 def print_matching(lines, substring):
