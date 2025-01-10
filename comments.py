@@ -40,8 +40,7 @@ def get_lines(files):
     for file in files:
         line_no: int = 1
         for line in file.file:
-            yield Data.from_list(file.path, file.file, line.strip(),
-                                 line_no, None)
+            yield Data.from_list(file.path, file.file, line, line_no, None)
             line_no += 1
         # yield from file
 
@@ -58,7 +57,7 @@ def print_matching(lines, substring):
     for line in lines:
         if substring in line.line:
             print("{:40s}:{:d} {:s}".format(str(line.path), line.line_no,
-                                            line.line))
+                                            line.line), end='')
 
 
 if __name__ == '__main__':
