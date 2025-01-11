@@ -19,16 +19,10 @@ class Data(BaseModel):
     line_no: Optional[int] = 0
     match: Optional[str] = ''
 
-    @classmethod
-    def from_list(cls, *items):
-        options = {k: v for k, v in zip(cls.__annotations__, items)}
-        return cls(**options)
-
 
 def get_paths(topdir, pattern):
     for path in pathlib.Path(topdir).rglob(pattern):
         if path.exists():
-            # yield Data.from_list(path, None, None, None, None)
             yield Data(path=path)
 
 
@@ -38,23 +32,16 @@ def LazyFile(path, mode, **kwargs):
 
 def get_files(paths):
     for path in paths:
-        # yield Data.from_list(
-        #     path.path, LazyFile(path.path, 'rt', encoding='latin-1'),
-        #     None, None, None)
         yield Data(path=path.path,
                    file=LazyFile(path.path, 'rt', encoding='latin-1'))
-        # with path.path.open('rt', encoding='latin-1') as file:
-        #     yield Data.from_list(path.path, file, None, None, None)
 
 
 def get_lines(files):
     for file in files:
         line_no: int = 1
         for line in next(file.file):
-            # yield Data.from_list(file.path, file.file, line, line_no, None)
             yield Data(path=file.path, line=line, line_no=line_no)
             line_no += 1
-        # yield from file
 
 
 def get_comments(lines):
@@ -62,8 +49,6 @@ def get_comments(lines):
         m = re.match('.*(#.*)$', line.line)
         if m:
             mm = m.group(1)
-            # yield Data.from_list(line.path, line.file, line.line,
-            #                      line.line_no, m.group(1))
             yield Data(path=line.path, line=line.line,
                        line_no=line.line_no, match=m.group(1))
 
