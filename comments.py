@@ -14,10 +14,9 @@ LazyFile = Generator[_io.TextIOWrapper, None, None]
 class Data(BaseModel):
     path: pathlib.Path
     file: object = None
-    # file: _io.TextIOWrapper
-    line: Optional[str] = ''
-    line_no: Optional[int] = 0
-    match: Optional[str] = ''
+    line: str = ''
+    line_no: int = 0
+    match: str = ''
 
 
 def get_paths(topdir, pattern):
