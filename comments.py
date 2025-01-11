@@ -5,10 +5,11 @@ import pathlib
 import _io
 import re
 from collections import namedtuple
-from typing import Optional, Any
+from typing import Optional, Any, Generator
 from pydantic import BaseModel
 # Data = namedtuple('Data', 'path file line line_no match')
 
+LazyFile = Generator[_io.TextIOWrapper, None, None]
 
 class Data(BaseModel):
     path: pathlib.Path
@@ -30,16 +31,23 @@ def get_paths(topdir, pattern):
             yield Data.from_list(path, None, None, None, None)
 
 
+def LazyFile(path, mode, **kwargs):
+    yield path.open(mode, **kwargs)
+
+
 def get_files(paths):
     for path in paths:
-        with path.path.open('rt', encoding='latin-1') as file:
-            yield Data.from_list(path.path, file, None, None, None)
+        yield Data.from_list(
+            path.path, LazyFile(path.path, 'rt', encoding='latin-1'),
+            None, None, None)
+        # with path.path.open('rt', encoding='latin-1') as file:
+        #     yield Data.from_list(path.path, file, None, None, None)
 
 
 def get_lines(files):
     for file in files:
         line_no: int = 1
-        for line in file.file:
+        for line in next(file.file):
             yield Data.from_list(file.path, file.file, line, line_no, None)
             line_no += 1
         # yield from file
