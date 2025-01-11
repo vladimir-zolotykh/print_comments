@@ -5,11 +5,11 @@ import pathlib
 import _io
 import re
 from collections import namedtuple
-from typing import Optional, Any, Generator
+from typing import Optional, Any, Generator, cast
 from pydantic import BaseModel
 # Data = namedtuple('Data', 'path file line line_no match')
 
-LazyFile = Generator[_io.TextIOWrapper, None, None]
+LazyFileType = Generator[_io.TextIOWrapper, None, None]
 
 class Data(BaseModel):
     path: pathlib.Path
@@ -35,10 +35,10 @@ def get_files(paths):
                    file=LazyFile(path.path, 'rt', encoding='latin-1'))
 
 
-def get_lines(files):
+def get_lines(files: list[Data]) -> Generator[Data, None, None]:
     for file in files:
         line_no: int = 1
-        for line in next(file.file):
+        for line in next(cast(LazyFileType,file.file)):
             yield Data(path=file.path, line=line, line_no=line_no)
             line_no += 1
 
