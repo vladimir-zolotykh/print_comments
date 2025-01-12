@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
-import pathlib
+from pathlib import Path
 import _io
 import re
 from collections import namedtuple
@@ -9,10 +9,10 @@ from typing import Optional, Any, Generator, cast
 from pydantic import BaseModel
 # Data = namedtuple('Data', 'path file line line_no match')
 
-LazyFileType = Generator[_io.TextIOWrapper, None, None]
+LazyType = Generator[_io.TextIOWrapper, None, None]
 
 class Data(BaseModel):
-    path: pathlib.Path
+    path: Path
     file: object = None
     line: str = ''
     line_no: int = 0
@@ -20,13 +20,15 @@ class Data(BaseModel):
 
 
 def get_paths(topdir, pattern):
-    for path in pathlib.Path(topdir).rglob(pattern):
+    for path in Path(topdir).rglob(pattern):
         if path.exists():
             yield Data(path=path)
 
 
-def LazyFile(path, mode, **kwargs):
-    yield path.open(mode, **kwargs)
+def LazyFile(
+        path: Path, mode: str, encoding: str
+) -> Generator[Any, None, None]:
+    yield path.open(mode, encoding=encoding)
 
 
 def get_files(paths):
@@ -38,7 +40,7 @@ def get_files(paths):
 def get_lines(files: list[Data]) -> Generator[Data, None, None]:
     for file in files:
         line_no: int = 1
-        for line in next(cast(LazyFileType,file.file)):
+        for line in next(cast(LazyType,file.file)):
             yield Data(path=file.path, line=line, line_no=line_no)
             line_no += 1
 
