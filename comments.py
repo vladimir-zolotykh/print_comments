@@ -25,7 +25,7 @@ def get_paths(topdir, pattern):
             yield Data(path=path)
 
 
-def LazyFile(
+def lazy_open(
         path: Path, mode: str, encoding: str
 ) -> Generator[Any, None, None]:
     yield path.open(mode, encoding=encoding)
@@ -34,7 +34,7 @@ def LazyFile(
 def get_files(paths):
     for path in paths:
         yield Data(path=path.path,
-                   file=LazyFile(path.path, 'rt', encoding='latin-1'))
+                   file=lazy_open(path.path, 'rt', encoding='latin-1'))
 
 
 def get_lines(files: list[Data]) -> Generator[Data, None, None]:
