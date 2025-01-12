@@ -25,10 +25,13 @@ def get_paths(topdir, pattern):
             yield Data(path=path)
 
 
+# def lazy_open(
+#         path: Path, mode: str, encoding: str
+# ) -> Generator[Any, None, None]:
 def lazy_open(
         path: Path, mode: str, encoding: str
-) -> Generator[Any, None, None]:
-    yield path.open(mode, encoding=encoding)
+) -> LazyType:
+    yield cast(_io.TextIOWrapper, path.open(mode, encoding=encoding))
 
 
 def get_files(paths):
