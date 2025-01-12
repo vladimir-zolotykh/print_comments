@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from pathlib import Path
-import _io
+from _io import TextIOWrapper
 import re
 from collections import namedtuple
 from typing import Optional, Any, Generator, cast
 from pydantic import BaseModel
 # Data = namedtuple('Data', 'path file line line_no match')
 
-LazyType = Generator[_io.TextIOWrapper, None, None]
+LazyType = Generator[TextIOWrapper, None, None]
 
 class Data(BaseModel):
     path: Path
@@ -31,7 +31,7 @@ def get_paths(topdir, pattern):
 def lazy_open(
         path: Path, mode: str, encoding: str
 ) -> LazyType:
-    yield cast(_io.TextIOWrapper, path.open(mode, encoding=encoding))
+    yield cast(TextIOWrapper, path.open(mode, encoding=encoding))
 
 
 def get_files(paths):
