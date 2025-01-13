@@ -37,6 +37,7 @@ TypedGenerator = Generator[T, None, None]
 Paths = TypedGenerator[Path]
 Files = TypedGenerator[File]
 Lines = TypedGenerator[Line]
+Comments = TypedGenerator[Comment]
 
 
 def get_paths(topdir: str, pattern: str) -> Paths:
@@ -59,7 +60,7 @@ def get_lines(files: Files) -> Lines:
             line_no += 1
 
 
-def get_comments(lines: Lines) -> Generator[Comment, None, None]:
+def get_comments(lines: Lines) -> Comments:
     for line in lines:
         m = re.match('.*(#.*)$', line.line)
         if m:
