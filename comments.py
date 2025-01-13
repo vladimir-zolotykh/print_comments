@@ -4,61 +4,75 @@
 import pathlib
 import _io
 import re
-from collections import namedtuple
-from typing import Optional, Any
-from pydantic import BaseModel
-# Data = namedtuple('Data', 'path file line line_no match')
+from dataclasses import dataclass
+from typing import TypeVar, Generator
 
 
-class Data(BaseModel):
+@dataclass
+class Path:
     path: pathlib.Path
-    file: object
-    # file: _io.TextIOWrapper
-    line: Optional[str]
-    line_no: Optional[int]
-    match: Optional[str]
-
-    @classmethod
-    def from_list(cls, *items):
-        options = {k: v for k, v in zip(cls.__annotations__, items)}
-        return cls(**options)
 
 
-def get_paths(topdir, pattern):
+@dataclass
+class File:
+    file: _io.TextIOWrapper
+
+    @property
+    def path(self):
+        return self.file.name
+
+
+@dataclass
+class Line(Path):
+    line: str = ''
+    line_no: int = -1
+
+
+@dataclass
+class Comment(Line):
+    comment: str = ''
+
+T = TypeVar('T')
+TypedGenerator = Generator[T, None, None]
+Paths = TypedGenerator[Path]
+Files = TypedGenerator[File]
+Lines = TypedGenerator[Line]
+
+
+def get_paths(topdir: str, pattern: str) -> Paths:
     for path in pathlib.Path(topdir).rglob(pattern):
         if path.exists():
-            yield Data.from_list(path, None, None, None, None)
+            yield Path(path=path)
 
 
-def get_files(paths):
+def get_files(paths: Paths) -> Files:
     for path in paths:
         with path.path.open('rt', encoding='latin-1') as file:
-            yield Data.from_list(path.path, file, None, None, None)
+            yield File(file=file)
 
 
-def get_lines(files):
+def get_lines(files: Files) -> Lines:
     for file in files:
         line_no: int = 1
         for line in file.file:
-            yield Data.from_list(file.path, file.file, line, line_no, None)
+            yield Line(path=file.path, line=line, line_no=line_no)
             line_no += 1
-        # yield from file
 
 
-def get_comments(lines):
+def get_comments(lines: Lines) -> Generator[Comment, None, None]:
     for line in lines:
         m = re.match('.*(#.*)$', line.line)
         if m:
             mm = m.group(1)
-            yield Data.from_list(line.path, line.file, line.line, line.line_no,
-                                 m.group(1))
+            yield Comment(path=line.path, line=line.line,
+                          line_no=line.line_no, comment=m.group(1))
 
 
 def print_matching(lines, substring):
     for line in lines:
         if substring in line.line:
-            print("{:40s}:{:d} {:s}".format(str(line.path), line.line_no,
-                                            line.match))
+            print("{:40s}:{:d} {:s}".format(str(line.path),
+                                            line.line_no, line.comment))
 
 
 if __name__ == '__main__':
